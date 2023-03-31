@@ -28,11 +28,11 @@ import static net.egork.telegram.svoyak.data.Data.DATA;
  */
 public class SchedulerMain {
     private static TelegramBotsApi botsApi;
-    private static Log log = LogFactory.getLog(SchedulerMain.class);
+    private static final Log log = LogFactory.getLog(SchedulerMain.class);
 
     private TelegramBot bot;
     private TelegramBot gameBot;
-    private GameChat[] gameChats = {
+    private final GameChat[] gameChats = {
             new GameChat(-228225536L, "https://t.me/joinchat/GJNnBw2acgB5jCNmxQz7Cw"), //1
             new GameChat(-329127234L, "https://t.me/joinchat/GJNnBxOeFULm1IzyWvAppA"), //2
             new GameChat(-236588404L, "https://t.me/joinchat/GJNnBw4aDXTW7Y4ID9wP4w"), //3
@@ -61,8 +61,8 @@ public class SchedulerMain {
     };
     private boolean shuttingDown = false;
 
-    private Executor executor = Executors.newSingleThreadExecutor();
-    private Map<Long, ScheduleChat> chats = new HashMap<>();
+    private final Executor executor = Executors.newSingleThreadExecutor();
+    private final Map<Long, ScheduleChat> chats = new HashMap<>();
 
     public static void main(String[] args) {
         ApiContextInitializer.init();
