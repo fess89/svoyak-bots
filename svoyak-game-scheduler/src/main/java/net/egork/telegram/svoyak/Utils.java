@@ -33,9 +33,6 @@ public class Utils {
     }
 
     public static String name(User user) {
-//        if (user.getUsername() != null) {
-//            return "@" + user.getUsername();
-//        }
         if (user.getLastName() != null) {
             return user.getFirstName() + " " + user.getLastName();
         }
