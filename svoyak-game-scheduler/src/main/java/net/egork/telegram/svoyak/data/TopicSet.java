@@ -1,13 +1,9 @@
 package net.egork.telegram.svoyak.data;
 
-//import org.apache.commons.lang.StringEscapeUtils;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,61 +28,6 @@ public class TopicSet {
             return null;
         }
         return topics.get(index);
-    }
-
-    public static TopicSet parse(String url) {
-        if (!url.startsWith("http")) {
-            return parseText(url);
-        }
-        String text = readPage(url);
-        if (text == null) {
-            return null;
-        }
-        try {
-            StringParser parser = new StringParser(text);
-            parser.advance(true, "<h2 class=\"content-title\">");
-            String description = prettify(parser.advance(false, "</h2>"));
-            List<Topic> topics = new ArrayList<Topic>();
-            while (parser.advanceIfPossible(true, "<div style=\"margin-top:20px;\">") != null) {
-                parser.advance(true, "</a></strong>:");
-                String topicTitle = prettify(parser.advance(false, "<p>").trim());
-                StringBuilder s = new StringBuilder();
-                boolean skip = false;
-                for (int i = 0; i < topicTitle.length(); i++) {
-                    if (topicTitle.charAt(i) == '<') {
-                        skip = true;
-                    }
-                    if (!skip) {
-                        s.append(topicTitle.charAt(i));
-                    }
-                    if (topicTitle.charAt(i) == '>') {
-                        skip = false;
-                    }
-                }
-                topicTitle = s.toString();
-                List<Question> questions = new ArrayList<Question>();
-                for (int i = 0; i < 5; i++) {
-                    parser.advance(true, ". ");
-                    String question = prettify(parser.advance(false, "</p>"));
-                    parser.advance(true, "<p><i>");
-                    parser.advance(true, "</i>");
-                    String answer = prettify(strip(parser.advance(false, "</p>").trim()));
-                    questions.add(new Question((i + 1) * 10, question, Collections.singletonList(answer)));
-                }
-                topics.add(new Topic(topicTitle, questions));
-            }
-            return new TopicSet(description, "", topics);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private static TopicSet parseText(String name) {
-        try {
-            return parseReader(new BufferedReader(new FileReader(name + ".si")));
-        } catch (FileNotFoundException e) {
-            return null;
-        }
     }
 
     public static TopicSet parseReader(BufferedReader reader) {
@@ -447,66 +388,6 @@ public class TopicSet {
                 "Источник. http://nauka.relis.ru/cgi/nauka.pl?50+9805+50805138+HTML\n").split("\n")));
     }
 
-    private static TopicSet parseStandard(List<String> data) {
-        StringIterator parser = new StringIterator(data);
-        parser.next();
-        String description = parser.next();
-        List<Topic> topics = new ArrayList<>();
-        try {
-            while (true) {
-                String subject = parser.next();
-                if (subject == null) {
-                    break;
-                }
-                while (!isQuestion(parser.peek())) {
-                    subject += "\n" + parser.next().trim();
-                }
-                List<Question> questions = new ArrayList<>();
-                for (int i = 0; i < 5; i++) {
-                    String question = parser.next();
-                    question = question.substring(question.indexOf(".") + 1).trim();
-                    String comment = "";
-                    List<String> answers = new ArrayList<>();
-                    boolean hasAnswer = false;
-                    while (true) {
-                        if (parser.peek() == null || isQuestion(parser.peek()) || parser.peek().toLowerCase().
-                                startsWith("тема")) {
-                            break;
-                        }
-                        String next = parser.next();
-                        if (next.toLowerCase().startsWith("ответ:")) {
-                            while (next.toLowerCase().startsWith("ответ:")) {
-                                next = next.substring(6).trim();
-                            }
-                            answers.add(next);
-                            hasAnswer = true;
-                        } else if (next.toLowerCase().startsWith("зачет:") || next.toLowerCase().startsWith("зачёт:")) {
-                            while (next.toLowerCase().startsWith("зачет:") || next.toLowerCase().startsWith("зачёт:")) {
-                                next = next.substring(6).trim();
-                            }
-                            answers.add(next);
-                        } else if (next.toLowerCase().startsWith("незачет:")) {
-                            comment += next + " ";
-                        } else if (next.toLowerCase().startsWith("комментарий:")) {
-                            comment += next.substring(12).trim() + " ";
-                        } else if (!next.toLowerCase().startsWith("источник:")) {
-                            question += "\n" + next;
-                        }
-                    }
-                    int index = question.toLowerCase().indexOf("ответ:");
-                    if (!hasAnswer && index != -1) {
-                        answers.add(question.substring(index + 6).trim());
-                        question = question.substring(0, index);
-                    }
-                    questions.add(new Question((i + 1) * 10, question, answers, comment.trim()));
-                }
-                topics.add(new Topic(subject, questions));
-            }
-        } catch (NullPointerException ignored) {
-        }
-        return new TopicSet(description, null, topics);
-    }
-
     private static boolean isQuestion(String s) {
         int dCount = 0;
         for (int i = 0; i < s.length(); i++) {
@@ -583,34 +464,6 @@ public class TopicSet {
         } catch (NullPointerException ignored) {
         }
         return new TopicSet(description, null, topics);
-    }
-
-    private static String prettify(String s) {
-//        s = StringEscapeUtils.unescapeHtml(s);
-        s = s.replace("<br/>", "\n").replace("<br />", "\n");
-        return s;
-    }
-
-    private static String strip(String s) {
-        while (s.endsWith(".")) {
-            s = s.substring(0, s.length() - 1);
-        }
-        return s;
-    }
-
-    static String readPage(String url) {
-        URL oracle = null;
-        try {
-            oracle = new URL(url);
-        } catch (MalformedURLException e) {
-            return null;
-        }
-        try {
-            InputStream inputStream = oracle.openStream();
-            return readStream(inputStream);
-        } catch (IOException e) {
-            return null;
-        }
     }
 
     @Nullable

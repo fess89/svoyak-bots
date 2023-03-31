@@ -21,9 +21,6 @@ public class Question {
         this.question = question;
         this.answers = new ArrayList<>(answers);
         this.comment = comment;
-//        for (int i = 0; i < answers.size(); i++) {
-//            this.answers.set(i, fix(answers.get(i)));
-//        }
     }
 
     private String fix(String s) {

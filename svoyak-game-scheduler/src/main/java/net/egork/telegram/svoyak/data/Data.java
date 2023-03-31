@@ -2,7 +2,6 @@ package net.egork.telegram.svoyak.data;
 
 import net.egork.telegram.svoyak.Utils;
 import net.egork.telegram.svoyak.scheduler.TopicId;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.*;
@@ -63,9 +62,8 @@ public class Data {
     private void loadPlayedByName() {
         try {
             BufferedReader reader = new BufferedReader(new FileReader("playedByName.list"));
-            String s;
-            while ((s = reader.readLine()) != null) {
-                String userName = s;
+            String userName;
+            while ((userName = reader.readLine()) != null) {
                 Set<TopicId> current = new HashSet<>();
                 while (true) {
                     String setId = reader.readLine();
@@ -99,8 +97,8 @@ public class Data {
                 rating.put(userId, rat);
             }
             reader.close();
-        } catch (IOException ignored) {
-            ignored.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -303,13 +301,13 @@ public class Data {
     }
 
     public void updateRatings(Map<Integer, Integer> score, Map<Integer, String> names) {
-        for (Map.Entry<Integer, String> entry : names.entrySet()) {
-            players.put(entry.getKey(), entry.getValue());
-        }
+        players.putAll(names);
+
         Map<Integer, Integer> updated = new HashMap<>();
         for (Map.Entry<Integer, Integer> entry : score.entrySet()) {
             updated.put(entry.getKey(), getRating(entry.getKey()));
         }
+
         for (Map.Entry<Integer, Integer> entry1 : score.entrySet()) {
             for (Map.Entry<Integer, Integer> entry2 : score.entrySet()) {
                 if (entry1 == entry2) {
@@ -327,9 +325,11 @@ public class Data {
                 updated.put(entry2.getKey(), updated.get(entry2.getKey()) + db);
             }
         }
+
         for (Map.Entry<Integer, Integer> entry : updated.entrySet()) {
             rating.put(entry.getKey(), Math.max(1, entry.getValue()));
         }
+
         savePlayers();
     }
 
@@ -344,18 +344,18 @@ public class Data {
         int sinceLast = 0;
         int lastRating = 1000000;
         for (RatingEntry entry : list) {
-            if (entry.rating == 1500) {
+            if (entry.getRating() == 1500) {
                 continue;
             }
-            if (entry.rating != lastRating) {
+            if (entry.getRating() != lastRating) {
                 place += sinceLast;
-                lastRating = entry.rating;
+                lastRating = entry.getRating();
                 sinceLast = 0;
             }
             if (place > top) {
                 break;
             }
-            builder.append(place + ". " + entry.name + " " + entry.rating + "\n");
+            builder.append(place + ". " + entry.getName() + " " + entry.getRating() + "\n");
             sinceLast++;
         }
         return builder.toString();
@@ -379,18 +379,4 @@ public class Data {
         savePlayers();
     }
 
-    private static class RatingEntry implements Comparable<RatingEntry> {
-        public final String name;
-        public final int rating;
-
-        private RatingEntry(String name, int rating) {
-            this.name = name;
-            this.rating = rating;
-        }
-
-        @Override
-        public int compareTo(@NotNull RatingEntry o) {
-            return o.rating - rating;
-        }
-    }
 }

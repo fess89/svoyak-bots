@@ -52,13 +52,6 @@ public class StringParser implements CharSequence {
 		}
 	}
 
-	public void dropTail(String sample) throws ParseException {
-		int position = underlying.indexOf(sample);
-		if (position == -1)
-			throw new ParseException(underlying, -1);
-		underlying = underlying.substring(0, position);
-	}
-
 	public void advance(int offset) {
 		underlying = underlying.substring(offset);
 	}
