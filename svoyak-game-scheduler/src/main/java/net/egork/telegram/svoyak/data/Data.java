@@ -13,13 +13,13 @@ public class Data {
     public static final Data DATA = new Data();
     public static final long DAY = 24 * 60 * 60 * 1000L;
 
-    private List<String> activePackages = new ArrayList<>();
-    private List<String> allPackages = new ArrayList<>();
-    private Map<String, TopicSet> sets = new HashMap<>();
-    private Map<Integer, Set<TopicId>> played = new HashMap<>();
-    private Map<Integer, String> players = new HashMap<>();
-    private Map<Integer, Integer> rating = new HashMap<>();
-    private Map<String, Set<TopicId>> playedByName = new HashMap<>();
+    private final List<String> activePackages = new ArrayList<>();
+    private final List<String> allPackages = new ArrayList<>();
+    private final Map<String, TopicSet> sets = new HashMap<>();
+    private final Map<Integer, Set<TopicId>> played = new HashMap<>();
+    private final Map<Integer, String> players = new HashMap<>();
+    private final Map<Integer, Integer> rating = new HashMap<>();
+    private final Map<String, Set<TopicId>> playedByName = new HashMap<>();
     private long nextReset;
 
     private Data() {
@@ -230,8 +230,8 @@ public class Data {
                 out.println(entry.getKey());
                 out.println(entry.getValue().size());
                 for (TopicId topicId : entry.getValue()) {
-                    out.println(topicId.setId);
-                    out.println(topicId.topic);
+                    out.println(topicId.getSetId());
+                    out.println(topicId.getTopic());
                 }
             }
             out.close();
@@ -266,16 +266,16 @@ public class Data {
                 out.println(players.get(entry.getKey()));
                 Map<String, char[]> sets = new HashMap<>();
                 for (TopicId topicId : entry.getValue()) {
-                    if (!this.sets.containsKey(topicId.setId)) {
+                    if (!this.sets.containsKey(topicId.getSetId())) {
                         continue;
                     }
-                    if (!sets.containsKey(topicId.setId)) {
-                        char[] value = new char[this.sets.get(topicId.setId).topics.size()];
+                    if (!sets.containsKey(topicId.getSetId())) {
+                        char[] value = new char[this.sets.get(topicId.getSetId()).topics.size()];
                         Arrays.fill(value, '.');
-                        sets.put(topicId.setId, value);
+                        sets.put(topicId.getSetId(), value);
                     }
-                    if (topicId.topic > 0 && topicId.topic <= sets.get(topicId.setId).length) {
-                        sets.get(topicId.setId)[topicId.topic - 1] = 'X';
+                    if (topicId.getTopic() > 0 && topicId.getTopic() <= sets.get(topicId.getSetId()).length) {
+                        sets.get(topicId.getSetId())[topicId.getTopic() - 1] = 'X';
                     }
                 }
                 for (Map.Entry<String, char[]> stringEntry : sets.entrySet()) {

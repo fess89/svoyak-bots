@@ -21,7 +21,7 @@ public class GameData {
     private List<net.egork.telegram.svoyak.data.User> players = new ArrayList<>();
     private List<net.egork.telegram.svoyak.data.User> spectators = new ArrayList<>();
     private User judge = null;
-    private long lastUpdated = System.currentTimeMillis();
+    private long lastUpdated;
 
     public GameData() {
         lastUpdated = System.currentTimeMillis();
