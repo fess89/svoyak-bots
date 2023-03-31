@@ -8,7 +8,6 @@ import net.egork.telegram.svoyak.data.TopicSet;
 import net.egork.telegram.svoyak.game.Game;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jetbrains.annotations.NotNull;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.objects.*;
@@ -379,7 +378,7 @@ public class SchedulerMain {
         Collections.sort(entries);
         StringBuilder builder = new StringBuilder();
         for (GameResultEntry entry : entries) {
-            builder.append(entry.name + " " + entry.points + " " + entry.rating + " (" + entry.delta + ")\n");
+            builder.append(entry.getName() + " " + entry.getPoints() + " " + entry.getRating() + " (" + entry.getDelta() + ")\n");
         }
         bot.sendMessage(origChatId, "<b>Игра завершена.</b>\nПакет: " + set.shortName + "\n" + builder.toString());
     }
@@ -395,25 +394,6 @@ public class SchedulerMain {
                     kickPlayer(chatId, user.getId());
                 }
             }
-        }
-    }
-
-    private static class GameResultEntry implements Comparable<GameResultEntry> {
-        public final String name;
-        public final int points;
-        public final int rating;
-        public final int delta;
-
-        public GameResultEntry(String name, int points, int rating, int delta) {
-            this.name = name;
-            this.points = points;
-            this.rating = rating;
-            this.delta = delta;
-        }
-
-        @Override
-        public int compareTo(@NotNull GameResultEntry o) {
-            return o.points - points;
         }
     }
 
