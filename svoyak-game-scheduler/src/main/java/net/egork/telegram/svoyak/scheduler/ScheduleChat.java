@@ -18,7 +18,7 @@ import static net.egork.telegram.svoyak.data.Data.DATA;
 public class ScheduleChat {
     private final long id;
     private final SchedulerMain scheduler;
-    private Executor executor = Executors.newSingleThreadExecutor();
+    private final Executor executor = Executors.newSingleThreadExecutor();
     private GameData currentGame;
 
     public ScheduleChat(long id, SchedulerMain scheduler) {

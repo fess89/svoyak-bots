@@ -1,144 +1,138 @@
-package net.egork.telegram.svoyak.scheduler;
+package net.egork.telegram.svoyak.scheduler
 
-import net.egork.telegram.svoyak.Utils;
-import net.egork.telegram.svoyak.data.User;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import net.egork.telegram.svoyak.Utils
+import net.egork.telegram.svoyak.data.User
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.PrintWriter
+import java.util.*
 
 /**
  * @author egor@egork.net
  */
-public class GameData {
-    private String setId;
-    private int topicCount = 6;
-    private int minPlayers = 3;
-    private int maxPlayers = 4;
-    private List<net.egork.telegram.svoyak.data.User> players = new ArrayList<>();
-    private List<net.egork.telegram.svoyak.data.User> spectators = new ArrayList<>();
-    private User judge = null;
-    private long lastUpdated;
+class GameData {
+    private var setId: String? = null
+    private var topicCount = 6
+    private var minPlayers = 3
+    private var maxPlayers = 4
+    private val players: MutableList<User> = ArrayList()
+    private val spectators: MutableList<User> = ArrayList()
+    var judge: User? = null
+    var lastUpdated: Long
+        private set
 
-    public GameData() {
-        lastUpdated = System.currentTimeMillis();
+    init {
+        lastUpdated = System.currentTimeMillis()
     }
 
-    public String getSetId() {
-        return setId;
+    fun getSetId(): String? {
+        return setId
     }
 
-    public void setSetId(String setId) {
-        this.setId = setId;
-        lastUpdated = System.currentTimeMillis();
+    fun setSetId(setId: String?) {
+        this.setId = setId
+        lastUpdated = System.currentTimeMillis()
     }
 
-    public int getTopicCount() {
-        return topicCount;
+    fun getTopicCount(): Int {
+        return topicCount
     }
 
-    public void setTopicCount(int topicCount) {
-        this.topicCount = topicCount;
-        lastUpdated = System.currentTimeMillis();
+    fun setTopicCount(topicCount: Int) {
+        this.topicCount = topicCount
+        lastUpdated = System.currentTimeMillis()
     }
 
-    public int getMinPlayers() {
-        return minPlayers;
+    fun getMinPlayers(): Int {
+        return minPlayers
     }
 
-    public void setMinPlayers(int minPlayers) {
-        this.minPlayers = minPlayers;
-        lastUpdated = System.currentTimeMillis();
+    fun setMinPlayers(minPlayers: Int) {
+        this.minPlayers = minPlayers
+        lastUpdated = System.currentTimeMillis()
     }
 
-    public int getMaxPlayers() {
-        return maxPlayers;
+    fun getMaxPlayers(): Int {
+        return maxPlayers
     }
 
-    public void setMaxPlayers(int maxPlayers) {
-        this.maxPlayers = maxPlayers;
-        lastUpdated = System.currentTimeMillis();
+    fun setMaxPlayers(maxPlayers: Int) {
+        this.maxPlayers = maxPlayers
+        lastUpdated = System.currentTimeMillis()
     }
 
-    public List<net.egork.telegram.svoyak.data.User> getPlayers() {
-        return Collections.unmodifiableList(players);
+    fun getPlayers(): List<User> {
+        return Collections.unmodifiableList(players)
     }
 
-    public void addPlayer(net.egork.telegram.svoyak.data.User user) {
-        unregister(user);
-        players.add(user);
-        lastUpdated = System.currentTimeMillis();
+    fun addPlayer(user: User) {
+        unregister(user)
+        players.add(user)
+        lastUpdated = System.currentTimeMillis()
     }
 
-    public void addSpectator(net.egork.telegram.svoyak.data.User user) {
-        unregister(user);
-        spectators.add(user);
-        lastUpdated = System.currentTimeMillis();
+    fun addSpectator(user: User) {
+        unregister(user)
+        spectators.add(user)
+        lastUpdated = System.currentTimeMillis()
     }
 
-    public List<net.egork.telegram.svoyak.data.User> getSpectators() {
-        return Collections.unmodifiableList(spectators);
+    fun getSpectators(): List<User> {
+        return Collections.unmodifiableList(spectators)
     }
 
-    public void unregister(net.egork.telegram.svoyak.data.User user) {
-        spectators.remove(user);
-        players.remove(user);
-        lastUpdated = System.currentTimeMillis();
+    fun unregister(user: User) {
+        spectators.remove(user)
+        players.remove(user)
+        lastUpdated = System.currentTimeMillis()
     }
 
-    public User getJudge() {
-        return judge;
+    override fun toString(): String {
+        return """
+             ${if (setId == null) "Стандартная игра" else "Игра по пакету $setId"}
+             Тем - $topicCount
+             Игроков - $minPlayers-$maxPlayers
+             Игроки: ${Utils.userList(players)}
+             Зрители: ${Utils.userList(spectators)}
+             """.trimIndent()
     }
 
-    public void setJudge(User judge) {
-        this.judge = judge;
-    }
-
-    public long getLastUpdated() {
-        return lastUpdated;
-    }
-
-    @Override
-    public String toString() {
-        return (setId == null ? "Стандартная игра" : ("Игра по пакету " + setId)) + "\n" +
-                "Тем - " + topicCount + "\n" +
-                "Игроков - " + minPlayers + "-" + maxPlayers + "\n" +
-                "Игроки: " + Utils.userList(players) + "\n" +
-                "Зрители: " + Utils.userList(spectators);
-    }
-
-    public void saveState(PrintWriter pw) {
-        pw.println("Game Data");
-        GameChat.saveData(pw, "set id", setId);
-        GameChat.saveData(pw, "topic count", topicCount);
-        GameChat.saveData(pw, "players", players.size());
-        for (User player : players) {
-            GameChat.saveData(pw, "player", player);
+    fun saveState(pw: PrintWriter) {
+        pw.println("Game Data")
+        GameChat.saveData(pw, "set id", setId)
+        GameChat.saveData(pw, "topic count", topicCount)
+        GameChat.saveData(pw, "players", players.size)
+        for (player in players) {
+            GameChat.saveData(pw, "player", player)
         }
-        GameChat.saveData(pw, "spectators", spectators.size());
-        for (User spectator : spectators) {
-            GameChat.saveData(pw, "spectator", spectator);
+        GameChat.saveData(pw, "spectators", spectators.size)
+        for (spectator in spectators) {
+            GameChat.saveData(pw, "spectator", spectator)
         }
-        GameChat.saveNullableData(pw, "judge", judge);
+        GameChat.saveNullableData(pw, "judge", judge)
     }
 
-    public static GameData loadState(BufferedReader in) throws IOException {
-        GameChat.expectLabel(in, "Game Data");
-        GameData gameData = new GameData();
-        gameData.setSetId(GameChat.readData(in, "set id"));
-        gameData.setTopicCount(Integer.parseInt(GameChat.readData(in, "topic count")));
-        int playerCount = Integer.parseInt(GameChat.readData(in, "players"));
-        for (int i = 0; i < playerCount; i++) {
-            gameData.addPlayer(User.readUser(in, "player"));
+    companion object {
+        @Throws(IOException::class)
+        @JvmStatic
+        fun loadState(reader: BufferedReader?): GameData {
+            GameChat.expectLabel(reader, "Game Data")
+            return GameData().apply {
+                setSetId(GameChat.readData(reader, "set id"))
+                setTopicCount(GameChat.readData(reader, "topic count").toInt())
+
+                val playerCount = GameChat.readData(reader, "players").toInt()
+                for (i in 0 until playerCount) {
+                    addPlayer(User.readUser(reader, "player"))
+                }
+
+                val specCount = GameChat.readData(reader, "spectators").toInt()
+                for (i in 0 until specCount) {
+                    addPlayer(User.readUser(reader, "spectator"))
+                }
+
+                judge = User.readNullableUser(reader, "judge")
+            }
         }
-        int specCount = Integer.parseInt(GameChat.readData(in, "spectators"));
-        for (int i = 0; i < specCount; i++) {
-            gameData.addPlayer(User.readUser(in, "spectator"));
-        }
-        gameData.setJudge(User.readNullableUser(in, "judge"));
-        return gameData;
     }
 }
